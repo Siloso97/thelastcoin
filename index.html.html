@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mundo Pós-Apocalíptico</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+            image-rendering: pixelated;
+        }
+        
+        body {
+            background-color: #3d2c1d;
+            color: #ff8c42;
+            background-image: 
+                radial-gradient(circle at 25% 25%, #4a3928 2px, transparent 2px),
+                radial-gradient(circle at 75% 75%, #4a3928 2px, transparent 2px);
+            background-size: 30px 30px;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            border: 4px double #8a5a2d;
+            padding: 20px;
+            background-color: #2a1e12;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(transparent 95%, rgba(138, 90, 45, 0.1) 96%),
+                linear-gradient(90deg, transparent 95%, rgba(138, 90, 45, 0.1) 96%);
+            background-size: 20px 20px;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px dashed #8a5a2d;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .title {
+            font-size: 24px;
+            color: #ff8c42;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 0 #000;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            color: #b87333;
+        }
+        
+        .passage {
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .passage-text {
+            background-color: rgba(42, 30, 18, 0.8);
+            padding: 15px;
+            border: 1px solid #5a3f1f;
+            margin-bottom: 15px;
+            font-size: 16px;
+            line-height: 1.7;
+            color: #ff8c42;
+        }
+        
+        .educational-note {
+            background-color: rgba(90, 70, 45, 0.9);
+            border: 2px solid #b87333;
+            padding: 15px;
+            margin: 20px 0;
+            font-style: italic;
+            color: #ffd700;
+        }
+        
+        .scene-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border: 2px solid #8a5a2d;
+            margin-bottom: 15px;
+            image-rendering: pixelated;
+        }
+        
+        .links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .link {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #3d2c1d;
+            color: #ff8c42;
+            text-decoration: none;
+            border: 1px solid #8a5a2d;
+            transition: all 0.3s;
+            font-size: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .link:hover {
+            background-color: #4a3928;
+            color: #ffa366;
+            border-color: #b87333;
+        }
+        
+        .link::before {
+            content: ">";
+            margin-right: 8px;
+            color: #b87333;
+        }
+        
+        .character {
+            color: #ffa366;
+            font-weight: bold;
+            margin-bottom: 5px;
+            border-bottom: 1px dotted #8a5a2d;
+            padding-bottom: 3px;
+        }
+        
+        .ending {
+            text-align: center;
+            padding: 20px;
+            border: 2px solid #8a5a2d;
+            margin: 20px 0;
+            background-color: rgba(61, 44, 29, 0.8);
+        }
+        
+        .ending-good {
+            border-color: #5a8a5a;
+            color: #7aff7a;
+        }
+        
+        .ending-bad {
+            border-color: #8a5a5a;
+            color: #ff7a7a;
+        }
+        
+        .ending-neutral {
+            border-color: #5a5a8a;
+            color: #7a7aff;
+        }
+        
+        .inventory {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(42, 30, 18, 0.9);
+            border: 2px solid #8a5a2d;
+            padding: 10px;
+            width: 200px;
+            z-index: 10;
+            color: #ff8c42;
+        }
+        
+        .inventory-title {
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 8px;
+            color: #ff8c42;
+            border-bottom: 1px solid #8a5a2d;
+            padding-bottom: 5px;
+        }
+        
+        .inventory-items {
+            font-size: 12px;
+            color: #ff8c42;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px dashed #8a5a2d;
+            font-size: 12px;
+            color: #b87333;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .music-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: rgba(42, 30, 18, 0.9);
+            border: 2px solid #8a5a2d;
+            padding: 10px;
+            z-index: 10;
+            color: #ff8c42;
+        }
+        
+        .music-btn {
+            background: #3d2c1d;
+            border: 1px solid #8a5a2d;
+            color: #ff8c42;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        
+        .music-btn:hover {
+            background: #4a3928;
+        }
+        
+        /* Efeito de glitch ocasional */
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+        
+        .glitch {
+            animation: glitch 0.3s linear;
+        }
+    </style>
+</head>
+<body>
+    <div class="inventory">
+        <div class="inventory-title">INVENTÁRIO</div>
+        <div class="inventory-items" id="inventory-display">
+            Nada ainda...
+        </div>
+    </div>
+    
+    <div class="music-controls">
+        <div>Trilha Sonora:</div>
+        <button class="music-btn" onclick="playMusic()">▶️ Tocar</button>
+        <button class="music-btn" onclick="pauseMusic()">⏸️ Pausar</button>
+        <button class="music-btn" onclick="stopMusic()">⏹️ Parar</button>
+    </div>
+    
+    <div class="game-container">
+        <div class="header">
+            <h1 class="title">MUNDO PÓS-APOCALÍPTICO</h1>
+            <div class="subtitle">Uma história sobre valor, troca e sobrevivência</div>
+        </div>
+        
+        <div class="passage" id="passage-container">
+            <!-- O conteúdo do jogo será carregado aqui -->
+        </div>
+        
+        <div class="footer">
+            Jogo original criado no Twine | Redesign em estilo 8 bits abandonado
+        </div>
+    </div>
+
+    <audio id="background-music" loop>
+        <!-- SUBSTITUA ESTE LINK PELO SEU ARQUIVO DE MÚSICA -->
+        <source src="https://drive.google.com/uc?export=download&id=1YmMO_rvhGicIyzf53MwRZ36ucB-mwUTt" type="audio/mpeg">
+        <source src="sua-musica.mp3" type="audio/mpeg">
+        Seu navegador não suporta o elemento de áudio.
+    </audio>
+
+    <script>
+        // Sistema de áudio
+        const backgroundMusic = document.getElementById('background-music');
+        
+        function playMusic() {
+            backgroundMusic.play().catch(e => {
+                console.log('Reprodução automática bloqueada. Clique em Tocar para iniciar a música.');
+            });
+        }
+        
+        function pauseMusic() {
+            backgroundMusic.pause();
+        }
+        
+        function stopMusic() {
+            backgroundMusic.pause();
+            backgroundMusic.currentTime = 0;
+        }
+        
+        // Tentar reproduzir automaticamente (pode ser bloqueado pelo navegador)
+        window.addEventListener('click', function() {
+            if (backgroundMusic.paused) {
+                backgroundMusic.play().catch(e => {
+                    console.log('Reprodução automática bloqueada.');
+                });
+            }
+        }, { once: true });
+
+        // Mapeamento de todas as passagens do jogo
+        const passages = {
+            "start": {
+                text: "Antes de jogar, lembre-se de dois conceitos centrais da educação financeira e da economia:\n\nVALOR DE USO de uma mercadoria é a utilidade direta que um bem oferece para atender uma necessidade imediata.\n\nVALOR DE TROCA é o poder de negociação desse bem, expresso na nova moeda ou na capacidade de obter outros recursos. É o que chamamos de capital.\n\nNo mundo pós-apocalíptico, sobreviver exige avaliar continuamente qual opção maximiza seu benefício econômico: utilizar, poupar ou trocar cada item conforme sua utilidade e seu valor de mercado naquele momento.\n\n---\n\nVocê acordou de um coma e agora está em um mundo pós-apocalíptico, onde o mundo adotou uma nova moeda, a qual você não tem conhecimento.",
+                image: "https://i.ytimg.com/vi/uSPcvl15qgM/maxresdefault.jpg",
+                links: [
+                    { text: "Continuar", target: "wakeup" }
+                ]
+            },
+            "wakeup": {
+                text: "COMERCIANTE: Saudações, meu jovem... Vejo que você acabou de sair daquele hospital. Está tudo bem?",
+                image: "https://i.imgur.com/tNqxYZ1.jpeg",
+                links: [
+                    { text: "Sim, sim... Obrigado pela preocupação", target: "trader_yes" },
+                    { text: "Sinceramente, eu nem sei o que está acontecendo", target: "trader_confused" }
+                ]
+            },
+            "trader_yes": {
+                text: "COMERCIANTE: Ah, graças a Deus... Bem, mudando de assunto, vejo que você carrega um item de bastante valor consigo... Esse celular... Está disposto a trocá-lo por um dos meus itens?",
+                image: "https://i.imgur.com/tNqxYZ1.jpeg",
+                links: [
+                    { text: "TROCAR CELULAR POR: uma vaca", target: "trade_cow" },
+                    { text: "TROCAR CELULAR POR: um carro", target: "trade_car" },
+                    { text: "TROCAR CELULAR POR: não trocar", target: "no_trade" }
+                ]
+            },
+            "trader_confused": {
+                text: "COMERCIANTE: Ah, eu sinto muito por você... Mas, bem, mudando de assunto, vejo que você carrega um item de bastante valor consigo... Esse celular... Está disposto a trocá-lo por um dos meus itens?",
+                image: "https://i.imgur.com/tNqxYZ1.jpeg",
+                links: [
+                    { text: "TROCAR CELULAR POR: uma vaca", target: "trade_cow" },
+                    { text: "TROCAR CELULAR POR: um carro", target: "trade_car" },
+                    { text: "TROCAR CELULAR POR: não trocar", target: "no_trade" }
+                ]
+            },
+            "trade_cow": {
+                text: "COMERCIANTE: Hmmm... Uma boa escolha... Nesse mundo, comida é algo muito escasso... Eu fui meio precipitado em trocá-la, até porque ela vale mais ou menos 150.000 Flux... Mas trato é trato, né? Boa jornada, meu jovem.",
+                image: "https://i.imgur.com/tNqxYZ1.jpeg",
+                links: [
+                    { text: "Oh, muito obrigado, senhor", target: "with_cow" }
+                ],
+                inventory: ["Vaca (Mimosa)"]
+            },
+            "trade_car": {
+                text: "COMERCIANTE: HAHAHA! Finalmente me livrei desse carro antigo... eu não aguentava mais... Ele pode até valer um bom dinheiro, mas eu nem sei como você vai tirá-lo daqui.",
+                image: "https://i.imgur.com/tNqxYZ1.jpeg",
+                links: [
+                    { text: "Nossa, que situação!", target: "with_car" }
+                ],
+                inventory: ["Carro"]
+            },
+            "no_trade": {
+                text: "COMERCIANTE: Justo... Até porque uma belezinha dessas vale uns 100.000 Flux... Mas, você não consegue mais usá-lo, até porque todas as redes de sinal foram destruídas.",
+                image: "https://i.imgur.com/tNqxYZ1.jpeg",
+                links: [
+                    { text: "Nossa... A que ponto a humanidade chegou.", target: "with_phone" }
+                ],
+                inventory: ["Celular"]
+            },
+            "with_cow": {
+                text: "Você começa a vagar por esse mundo, começando sua incrível aventura com Mimosa (sua vaca), e, andando mais um pouco, encontra um homem estranho montado em um cavalo.",
+                image: "https://i.ytimg.com/vi/uSPcvl15qgM/maxresdefault.jpg",
+                links: [
+                    { text: "Continuar", target: "agroboy_meet" }
+                ]
+            },
+            "with_car": {
+                text: "Você continua vagando por aquele mundo destruído, desesperado por suprimentos e companhia... Além disso, você anda empurrando seu carro, pensando sobre a 'incrível' escolha feita há pouco... Andando mais um pouco, você começa a enxergar uma silhueta humana...",
+                image: "https://i.ytimg.com/vi/uSPcvl15qgM/maxresdefault.jpg",
+                links: [
+                    { text: "Continuar", target: "medic_car" }
+                ]
+            },
+            "with_phone": {
+                text: "Você continua vagando por aquele mundo destruído, desesperado por suprimentos e companhia... A posse do seu inútil celular te incomoda profundamente, mas você começa a ver uma silhueta de uma mulher logo à frente...",
+                image: "https://i.ytimg.com/vi/uSPcvl15qgM/maxresdefault.jpg",
+                links: [
+                    { text: "Continuar", target: "medic_phone" }
+                ]
+            },
+            "agroboy_meet": {
+                text: "FAZENDEIRO: Ei, ei, ei... O que você pensa que está fazendo andando aqui no meu território? Saia daqui imediatamente... Espera... E essa vaca aí? Que bonita! Que formosa! Qual o nome dela?",
+                image: "https://i.imgur.com/iFLE5Q4.jpeg",
+                links: [
+                    { text: "É Mimosa, senhor!", target: "agroboy_trade" },
+                    { text: "Isso não é da sua conta", target: "agroboy_angry" }
+                ]
+            },
+            "agroboy_trade": {
+                text: "FAZENDEIRO: Hmmm... Realmente um nome bonito... Vejo que ela é muito bem cuidada, mas você realmente consegue cuidar de uma vaca sozinho? Se quiser trocá-la, eu tenho coisas para te oferecer...",
+                image: "https://i.imgur.com/iFLE5Q4.jpeg",
+                links: [
+                    { text: "TROCAR MIMOSA POR: 1 pendrive + suprimentos", target: "trade_cow_pendrive" },
+                    { text: "TROCAR MIMOSA POR: Não Trocar", target: "keep_cow" }
+                ]
+            },
+            "agroboy_angry": {
+                text: "FAZENDEIRO: Quem você pensa que é para falar assim comigo? Vamos logo com isso! Você quer trocá-la? Decida logo!",
+                image: "https://i.imgur.com/iFLE5Q4.jpeg",
+                links: [
+                    { text: "TROCAR MIMOSA POR: 1 pendrive + suprimentos", target: "trade_cow_pendrive" },
+                    { text: "TROCAR MIMOSA POR: Não trocar", target: "agroboy_leave" }
+                ]
+            },
+            "trade_cow_pendrive": {
+                text: "FAZENDEIRO: Sério? Muito obrigado, jovem, ela estará em boas mãos... Ah, verdade, eu nem sei o que tem nesse pendrive... Pode ter qualquer coisa... Vídeos, arquivos, ou até bitcoins!",
+                image: "https://i.imgur.com/iFLE5Q4.jpeg",
+                links: [
+                    { text: "É como diz o ditado... Quem não arrisca, não petisca", target: "with_pendrive" }
+                ],
+                inventory: ["Pendrive", "Suprimentos"]
+            },
+            "keep_cow": {
+                text: "FAZENDEIRO: Eu entendo... Bem, obrigado por considerar... Continue cuidando bem dela, jovem, nos vemos por aí, adeus...",
+                image: "https://i.imgur.com/iFLE5Q4.jpeg",
+                links: [
+                    { text: "Continuar", target: "with_cow_continue" }
+                ]
+            },
+            "agroboy_leave": {
+                text: "FAZENDEIRO: Tanto faz... Agora vá embora!",
+                image: "https://i.imgur.com/iFLE5Q4.jpeg",
+                links: [
+                    { text: "Continuar", target: "with_cow_continue" }
+                ]
+            },
+            "with_pendrive": {
+                text: "FAZENDEIRO: Essa é a mentalidade que eu gosto! Boa sorte, meu jovem, e se descobrir o que tem nele, me conte, porque estou curioso.",
+                image: "https://i.imgur.com/iFLE5Q4.jpeg",
+                links: [
+                    { text: "Continuar", target: "with_pendrive_continue" }
+                ]
+            },
+            "with_cow_continue": {
+                text: "Você continua andando, exausto mas bem nutrido... Porém, Mimosa não possui a comida necessária para sobreviver... Se pelo menos você entendesse um pouco sobre a alimentação de bovinos, ela poderia estar melhor... Mas, como não possui esse conhecimento, a Mimosa acaba morrendo...",
+                image: "https://i.ytimg.com/vi/uSPcvl15qgM/maxresdefault.jpg",
+                links: [
+                    { text: "Continuar", target: "cow_dies" }
+                ],
+                inventory: ["Cadáver de vaca"]
+            },
+            "cow_dies": {
+                text: "Agora, carregando um cadáver de vaca, você continua andando, triste pelo falecimento de sua amiga, mas desesperado para sobreviver...",
+                image: "https://i.ytimg.com/vi/uSPcvl15qgM/maxresdefault.jpg",
+                links: [
+                    { text: "Continuar", target: "youtuber_meet_corpse" }
+                ]
+            },
+            "with_pendrive_continue": {
+                text: "Você continua andando, agora sem sua companheira Mimosa, mas com diversos suprimentos, muito úteis para a sua situação atual, com o valor de aproximadamente 200.000 Flux. Por outro lado, o pendrive não será muito útil aparentemente.",
+                image: "https://i.ytimg.com/vi/uSPcvl15qgM/maxresdefault.jpg",
+                links: [
+                    { text: "Continuar", target: "explosion" }
+                ]
+            },
+            "explosion": {
+                text: "KABOOOOOOOOMMM!!!",
+                image: "https://i.ytimg.com/vi/uSPcvl15qgM/maxresdefault.jpg",
+                links: [
+                    { text: "Continuar", target: "programmer_help" }
+                ]
+            },
+            "programmer_help": {
+                text: "PROGRAMADOR: AHHHHHH!!! ESSE COMPUTADOR EXPLODIU DE NOVO?! EU SÓ QUERIA JOGAR E AGORA ESTOU AQUI, ENTERRADO POR DESTROÇOS... EI, VOCÊ AÍ... CONSEGUE ME AJUDAR?",
+                image: "https://i.imgur.com/S4tIchd.jpeg",
+                links: [
+                    { text: "Claro, já estou indo", target: "help_programmer" },
+                    { text: "Eu até ajudo, mas quero algo em troca", target: "help_with_payment" }
+                ]
+            },
+            "help_programmer": {
+                text: "PROGRAMADOR: Ahh, ufa! Muito obrigado, cara... Eu definitivamente tenho que tomar mais cuidado... Acho que eu te devo algo, né? Que tal fazer uma troca? Eu te dou um desconto num rádio aqui!",
+                image: "https://i.imgur.com/S4tIchd.jpeg",
+                links: [
+                    { text: "TROCAR PENDRIVE POR: 1 rádio velho", target: "trade_pendrive_radio" },
+                    { text: "TROCAR PENDRIVE POR: Não trocar", target: "no_trade_pendrive" }
+                ]
+            },
+            "help_with_payment": {
+                text: "PROGRAMADOR: Tá bom, tá bom, a gente vê isso depois, só me tira daqui",
+                image: "https://i.imgur.com/S4tIchd.jpeg",
+                links: [
+                    { text: "Continuar", target: "help_programmer" }
+                ]
+            },
+            "trade_pendrive_radio": {
+                text: "PROGRAMADOR: Viu, eu falei que ia valer a pena... Você ganhou essa relíquia e eu fiquei com essa tranqueira... Esse rádio deve valer uns 400.000 Flux, até porque não acho que exista alguém aqui que saiba fazer um... Bem, agora deixa eu voltar pro meu jogo aqui.",
+                image: "https://i.imgur.com/S4tIchd.jpeg",
+                links: [
+                    { text: "Ok... tchau, mano", target: "with_radio" },
+                    { text: "Calma aí...", target: "check_pendrive" }
+                ],
+                inventory: ["Rádio"]
+            },
+            "no_trade_pendrive": {
+                text: "PROGRAMADOR: Tudo bem... Mas lembre-se, se precisar de algo é só me pedir...",
+                image: "https://i.imgur.com/S4tIchd.jpeg",
+                links: [
+                    { text: "Ok, obrigado", target: "with_pendrive_only" }
+                ]
+            },
+            "check_pendrive": {
+                text: "PROGRAMADOR: O que foi?",
+                image: "https://i.imgur.com/S4tIchd.jpeg",
+                links: [
+                    { text: "Vê aí o que tem nesse pendrive", target: "pendrive_content" }
+                ]
+            },
+            "pendrive_content": {
+                text: "PROGRAMADOR: MEU DEUS... 10.000.000 FLUX?!!!! HAHAHAHAHA, AGORA EU COMPRO O QUE EU QUISER... NUNCA MAIS EU TRABALHO, MUITO OBRIGADO, MEU AMIGO!",
+                image: "https://i.imgur.com/S4tIchd.jpeg",
+                links: [
+                    { text: "Nossa, que sorte... Bem, agora eu vou partir, adeus", target: "leave_angry" },
+                    { text: "Eita... Quer dividir um pouquinho?", target: "ask_share" }
+                ]
+            },
+            "leave_angry": {
+                text: "Você sai da casa do homem, frustrado por não ter pego aquele dinheiro, mas, vagando por um tempo, seu rádio começou a fazer um chiado...",
+                image: "https://i.ytimg.com/vi/uSPcvl15qgM/maxresdefault.jpg",
+                links: [
+                    { text: "Continuar", target: "radio_signal" }
+                ]
+            },
+            "ask_share": {
+                text: "PROGRAMADOR: Eu não, você que se vire, HAHAHAHA... Vá embora daqui porque eu vou começar uma partida...",
+                image: "https://i.imgur.com/S4tIchd.jpeg",
+                links: [
+                    { text: "Que situação!", target: "leave_angry" }
+                ]
+            },
+            "with_radio": {
+                text: "Você sai da casa do homem, feliz por ter se livrado daquele pendrive inútil e conseguindo um item de tanto valor... Vagando por um tempo, seu rádio começou a fazer um chiado...",
+                image: "https://i.ytimg.com/vi/uSPcvl15qgM/maxresdefault.jpg",
+                links: [
+                    { text: "Continuar", target: "radio_signal" }
+                ]
+            },
+            "with_pendrive_only": {
+                text: "Você continua nessa viagem praticamente interminável, com o seu 'incrível' pendrive e os poucos suprimentos que lhe restam...",
+                image: "https://i.ytimg.com/vi/uSPcvl15qgM/maxresdefault.jpg",
+                links: [
+                    { text: "Continuar", target: "radio_signal" }
+                ]
+            },
+            "radio_signal": {
+                text: "???: Ei......con..seg......me......en....ender?......",
+                image: "https://i.ytimg.com/vi/uSPcvl15qgM/maxresdefault.jpg",
+                links: [
+                    { text: "A transmissão tá meio ruim, mas eu consigo", target: "understand_signal" },
+                    { text: "Não quero conversar agora", target: "ignore_signal" }
+                ]
+            },
+            "understand_signal": {
+                text: "Eu.....nã.o.....consi...o....te...ou...vir.........mas....s.e.........consegu...ir.....ven...ha........pa..a.....o....me.......abri...go........ele.....fic......no...fi...nal....da...Sant..o.....Am...aro....",
+                image: "https://i.ytimg.com/vi/uSPcvl15qgM/maxresdefault.jpg",
+                links: [
+                    { text: "IR PARA O ABRIGO", target: "go_shelter" },
+                    { text: "NÃO IR PARA O ABRIGO", target: "no_shelter" }
+                ]
+            },
+            "ignore_signal": {
+                text: "Eu.....nã.o.....consi...o....te...ou...vir.........mas....s.e.........consegu...ir.....ven...ha........pa..a.....o....me.......abri...go........ele.....fic......no...fi...nal....da...Sant..o.....Am...aro....",
+                image: "https://i.ytimg.com/vi/uSPcvl15qgM/maxresdefault.jpg",
+                links: [
+                    { text: "IR PARA O ABRIGO", target: "go_shelter" },
+                    { text: "NÃO IR PARA O ABRIGO", target: "no_shelter" }
+                ]
+            },
+            "go_shelter": {
+                text: "Você, após andar por muito tempo, quase acabando com seus recursos, você chega em uma espécie de fortaleza, lugar que provavelmente é o abrigo que o homem falou no rádio...",
+                image: "https://i.ytimg.com/vi/uSPcvl15qgM/maxresdefault.jpg",
+                links: [
+                    { text: "Bater na porta", target: "knock_door" },
+                    { text: "Chamar por alguém", target: "scream" }
+                ]
+            },
+            "no_shelter": {
+                text: "Você ignora a mensagem recebida pelo rádio... porém, você começa a sofrer com a fome, já que os suprimentos do fazendeiro já estão no seu fim",
+                image: "https://i.ytimg.com/vi/uSPcvl15qgM/maxresdefault.jpg",
+                links: [
+                    { text: "Continuar", target: "starving" }
+                ]
+            },
+            "knock_door": {
+                text: "GUARDA: Olá... quem é você, meu jovem? Precisa de ajuda?",
+                image: "https://i.imgur.com/o8aSA4D.jpeg",
+                links: [
+                    { text: "Eu recebi uma mensagem me chamando pra cá", target: "shelter_entry" }
+                ]
+            },
+            "scream": {
+                text: "GUARDA: Oi, oi... Não precisa gritar... quem é você? Precisa de algo?",
+                image: "https://i.imgur.com/o8aSA4D.jpeg",
+                links: [
+                    { text: "Eu recebi uma mensagem me chamando pra cá", target: "shelter_entry" }
+                ]
+            },
+            "shelter_entry": {
+                text: "GUARDA: Ahhh bom, é você... Pode entrar, agora você está em segurança... Seja muito bem-vindo ao Abrigo Lavender!",
+                image: "https://i.imgur.com/o8aSA4D.jpeg",
+                links: [
+                    { text: "Continuar", target: "final_neutro" }
+                ]
+            },
+            "starving": {
+                text: "EMPREENDEDOR: Perdão, meu querido, mas eu não pude deixar de notar essa grande promessa passando na minha frente, foi o destino que fez com que nos encontrássemos hoje!",
+                image: "https://i.imgur.com/yn4aUIq.jpeg",
+                links: [
+                    { text: "Que isso, meu amigo?", target: "entrepreneur_offer" },
+                    { text: "Esse senhor está bem?", target: "entrepreneur_crazy" }
+                ]
+            },
+            "entrepreneur_offer": {
+                text: "EMPREENDEDOR: Bem... Eu vejo em você um grande futuro... Você quer ficar rico? Sinceramente, com esse rádio aí, vai ser muito fácil... Minha ideia é restabelecer as ondas de rádio no mundo e vender isso para as pessoas... Eu já criei a antena, mas eu não tenho o aparelho... E aí... Quer me ajudar?",
+                image: "https://i.imgur.com/yn4aUIq.jpeg",
+                links: [
+                    { text: "SIM", target: "accept_help" },
+                    { text: "NÃO", target: "refuse_help" }
+                ]
+            },
+            "entrepreneur_crazy": {
+                text: "EMPREENDEDOR: Eu? Nunca! Só que eu vejo em você um grande futuro... Você quer ficar rico? Sinceramente, com esse rádio aí, vai ser muito fácil... Minha ideia é restabelecer as ondas de rádio no mundo... Eu já criei a antena, mas eu não tenho o aparelho... E aí... Quer me ajudar?",
+                image: "https://i.imgur.com/yn4aUIq.jpeg",
+                links: [
+                    { text: "SIM", target: "accept_help" },
+                    { text: "NÃO", target: "refuse_help" }
+                ]
+            },
+            "accept_help": {
+                text: "EMPREENDEDOR: Perfeito... Vamos aos trabalhos...",
+                image: "https://i.imgur.com/yn4aUIq.jpeg",
+                links: [
+                    { text: "Continuar", target: "final_bom" }
+                ]
+            },
+            "refuse_help": {
+                text: "Você continua andando, acreditando que aquele homem só queria te enganar, uma decisão segura, mas segue vagando continuamente e ficando quase sem recursos... À procura de um lugar para ficar, você começa a se sentir estranho, quando uma figura misteriosa aparece...",
+                image: "https://i.ytimg.com/vi/uSPcvl15qgM/maxresdefault.jpg",
+                links: [
+                    { text: "Continuar", target: "mysterious_figure" }
+                ]
+            },
+            "mysterious_figure": {
+                text: "???: Ei, você... Vem cá",
+                image: "https://i.imgur.com/sQ4AxMw.jpeg",
+                links: [
+                    { text: "Diga, meu caro", target: "ask_question" },
+                    { text: "Fala logo, amigo...", target: "ask_question_impatient" }
+                ]
+            },
+            "ask_question": {
+                text: "???: Bem... Eu queria te perguntar uma coisa... Como que é definido o preço de alguma coisa?\nQuais são os fatores que deixam algo mais caro ou mais barato?",
+                image: "https://i.imgur.com/sQ4AxMw.jpeg",
+                links: [
+                    { text: "Cara ou coroa", target: "wrong_answer" },
+                    { text: "Valor de troca e uso", target: "right_answer" },
+                    { text: "O máximo de zeros que cabem na etiqueta", target: "wrong_answer" },
+                    { text: "Valores pessoais", target: "wrong_answer" }
+                ]
+            },
+            "ask_question_impatient": {
+                text: "???: Bem... Eu queria te perguntar uma coisa... Como que é definido o preço de alguma coisa?\nQuais são os fatores que deixam algo mais caro ou mais barato?",
+                image: "https://i.imgur.com/sQ4AxMw.jpeg",
+                links: [
+                    { text: "Cara ou coroa", target: "wrong_answer" },
+                    { text: "Valor de troca e uso", target: "right_answer" },
+                    { text: "O máximo de zeros que cabem na etiqueta", target: "wrong_answer" },
+                    { text: "Valores pessoais", target: "wrong_answer" }
+                ]
+            },
+            "right_answer": {
+                text: "???: Exatamente! A partir do momento que bens começam a ser trocados, surge o valor de troca e uso, os quais se tornam muito importantes para a definição do valor de algo. Esse valor acaba tendo uma variação, devido à forte relação com a Lei da Oferta e Demanda, a qual evidencia os itens mais importantes e utilizados pelas pessoas.",
+                image: "https://i.imgur.com/sQ4AxMw.jpeg",
+                links: [
+                    { text: "Continuar", target: "wake_up" }
+                ]
+            },
+            "wrong_answer": {
+                text: "???: Escolher preços na sorte não seria meio errado? Um pouco injusto também... Essa resposta foi bem equivocada na verdade...",
+                image: "https://i.imgur.com/sQ4AxMw.jpeg",
+                links: [
+                    { text: "Continuar", target: "wake_up" }
+                ]
+            },
+            "wake_up": {
+                text: "???: Mas, isso não importa... Você tem que acordar... Acorda... Precisamos de você...",
+                image: "https://i.imgur.com/sQ4AxMw.jpeg",
+                links: [
+                    { text: "Continuar", target: "mother" }
+                ]
+            },
+            "mother": {
+                text: "MÃE: Ahhh... Finalmente você acordou... Eu estava com tanto medo de te perder, filho... Mas que bom que tudo correu bem...",
+                image: "https://i.ytimg.com/vi/uSPcvl15qgM/maxresdefault.jpg",
+                links: [
+                    { text: "Espera... O que aconteceu?", target: "what_happened" },
+                    { text: "Onde eu estou?", target: "where_am_i" }
+                ]
+            },
+            "what_happened": {
+                text: "MÃE: Ahh... Você ainda deve estar confuso... Você sofreu um acidente de moto ontem e teve um traumatismo craniano... Você sobreviveu graças a um homem que estava passando por perto... Foi muita sorte...",
+                image: "https://i.ytimg.com/vi/uSPcvl15qgM/maxresdefault.jpg",
+                links: [
+                    { text: "Continuar", target: "true_ending" }
+                ]
+            },
+            "where_am_i": {
+                text: "MÃE: Você está no hospital, filho... Ahh... Você ainda deve estar confuso... Você sofreu um acidente de moto ontem e teve um traumatismo craniano... Você sobreviveu graças a um homem que estava passando por perto... Foi muita sorte...",
+                image: "https://i.ytimg.com/vi/uSPcvl15qgM/maxresdefault.jpg",
+                links: [
+                    { text: "Continuar", target: "true_ending" }
+                ]
+            },
+            "true_ending": {
+                text: "MÃE: Tá tudo bem, filho... Descanse um pouco... A mamãe vai ficar aqui com você",
+                image: "https://i.ytimg.com/vi/uSPcvl15qgM/maxresdefault.jpg",
+                links: [
+                    { text: "Recomeçar", target: "start" }
+                ],
+                ending: "good"
+            },
+            "final_bom": {
+                text: "FINAL BOM\n\nApós um tempo de vendas, sua imagem ficou mundialmente conhecida como 'O Mensageiro', sendo adorado pelas suas criações e ficando tão rico que nunca mais precisará trabalhar...",
+                image: "https://i.ytimg.com/vi/uSPcvl15qgM/maxresdefault.jpg",
+                links: [
+                    { text: "Recomeçar", target: "start" }
+                ],
+                ending: "good"
+            },
+            "final_ruim": {
+                text: "FINAL RUIM\n\nV O C Ê . . . . T O M O U . . . . A . . . . D E C I S Ã O . . . . E R R A D A . . . .",
+                image: "https://i.ytimg.com/vi/uSPcvl15qgM/maxresdefault.jpg",
+                links: [
+                    { text: "Recomeçar", target: "start" }
+                ],
+                ending: "bad"
+            },
+            "final_neutro": {
+                text: "FINAL NEUTRO\n\nVocê, junto de seu colega de trabalho, conseguem estabelecer as conexões de rádio no mundo... Além disso, o rádio que você ofereceu permitiu com que vocês recriassem outros rádios, assim vendendo eles...",
+                image: "https://i.ytimg.com/vi/uSPcvl15qgM/maxresdefault.jpg",
+                links: [
+                    { text: "Recomeçar", target: "start" }
+                ],
+                ending: "neutral"
+            }
+        };
+
+        // Estado do jogo
+        let gameState = {
+            currentPassage: "start",
+            inventory: []
+        };
+
+        // Função para carregar uma passagem
+        function loadPassage(passageId) {
+            const passage = passages[passageId];
+            if (!passage) {
+                console.error("Passagem não encontrada:", passageId);
+                return;
+            }
+
+            const container = document.getElementById('passage-container');
+            
+            // Atualizar inventário se a passagem tiver itens
+            if (passage.inventory) {
+                gameState.inventory = passage.inventory;
+            }
+            
+            // Criar HTML da passagem
+            let passageHTML = '';
+            
+            // Adicionar imagem se existir
+            if (passage.image) {
+                passageHTML += `<img src="${passage.image}" alt="Cena" class="scene-image">`;
+            }
+            
+            passageHTML += '<div class="passage-text">';
+            
+            // Adicionar classe de final se for um final
+            if (passage.ending) {
+                passageHTML += `<div class="ending ending-${passage.ending}">`;
+            }
+            
+            // Processar texto (separar personagens do diálogo)
+            const lines = passage.text.split('\n');
+            lines.forEach(line => {
+                if (line.includes(':')) {
+                    const parts = line.split(':');
+                    passageHTML += `<div class="character">${parts[0]}:</div>`;
+                    passageHTML += `<div>${parts.slice(1).join(':')}</div>`;
+                } else {
+                    passageHTML += `<div>${line}</div>`;
+                }
+            });
+            
+            if (passage.ending) {
+                passageHTML += '</div>';
+            }
+            
+            passageHTML += '</div>';
+            
+            // Adicionar links
+            if (passage.links && passage.links.length > 0) {
+                passageHTML += '<div class="links">';
+                passage.links.forEach(link => {
+                    passageHTML += `<a href="#" class="link" data-target="${link.target}">${link.text}</a>`;
+                });
+                passageHTML += '</div>';
+            }
+            
+            container.innerHTML = passageHTML;
+            
+            // Adicionar event listeners aos links
+            document.querySelectorAll('.link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = this.getAttribute('data-target');
+                    
+                    // Efeito de glitch aleatório
+                    if (Math.random() > 0.7) {
+                        container.classList.add('glitch');
+                        setTimeout(() => {
+                            container.classList.remove('glitch');
+                        }, 300);
+                    }
+                    
+                    // Atualizar estado e carregar nova passagem
+                    gameState.currentPassage = target;
+                    setTimeout(() => {
+                        loadPassage(target);
+                    }, 100);
+                });
+            });
+            
+            // Atualizar inventário
+            updateInventory();
+        }
+
+        // Função para atualizar o inventário
+        function updateInventory() {
+            const inventoryDisplay = document.getElementById('inventory-display');
+            
+            if (gameState.inventory.length === 0) {
+                inventoryDisplay.textContent = "Nada ainda...";
+            } else {
+                inventoryDisplay.innerHTML = gameState.inventory.map(item => 
+                    `• ${item}`
+                ).join('<br>');
+            }
+        }
+
+        // Inicializar o jogo
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPassage(gameState.currentPassage);
+            
+            // Tentar iniciar a música automaticamente
+            setTimeout(() => {
+                playMusic();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
